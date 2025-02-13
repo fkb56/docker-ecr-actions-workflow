@@ -125,25 +125,16 @@ jobs:
         with:
           cosign-release: 'v2.2.4'
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v6
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-publish
+        shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
-        with:
-          context: "{{defaultContext}}:${{ env.docker_build_dir }}"
-#          context: "${{ env.docker_build_dir }}"
-#          context: "${{ env.path_to_dockerfile }}"
-          #          context: "${{ vars.PATH_TO_DOCKERFILE }}"
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
-          # labels: ${{ steps.meta.outputs.labels }}
-          # cache-from: type=gha
-          # cache-to: type=gha,mode=max
+          ECR_REPOSITORY: ${{ vars.ECR_REPO_NAME }}
+          IMAGE_TAG: ${{ env.TAG }}
+        run: |
+          docker build "${{ vars.DOCKER_BUILD_DIR }}" -f "${{ vars.PATH_TO_DOCKERFILE }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
+          echo "image_tag=$IMAGE_TAG"
+          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
