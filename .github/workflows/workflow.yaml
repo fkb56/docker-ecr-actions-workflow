@@ -49,7 +49,7 @@ on:
 
 env:
   aws_region: eu-west-3
-  backend_dynamodb_table: terraform-backend-ddb
+  backend_dynamodb_table: terraform-backend-bdd
   aws_account_id: 794038241431
   backend_s3_bucket: myterraform56
   github_iam_role: GithubAction
@@ -122,7 +122,7 @@ jobs:
           terraform apply \
             -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
             -var 'lifecycle_policy=${{ env.lifecycle_policy_file }}' \
-            -var 'iam_role=arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.github_iam_role }}' \
+            -var 'iam_role=arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.backend_iam_role }}' \
             -var 'aws_account_id=${{ env.aws_account_id }}' \
             -auto-approve
         working-directory: ${{ github.action_path }}
