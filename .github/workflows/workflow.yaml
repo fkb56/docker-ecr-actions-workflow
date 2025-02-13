@@ -89,12 +89,6 @@ jobs:
         run: |
           echo "${{steps.taggerDryRun.outputs.new_tag}}" > version.txt
 
-#      - name: Upload version result
-#        uses: actions/upload-artifact@v4.6.0
-#        with:
-#          name: version
-#          path: version.txt
-
       # DO MY BUILD HERE
       # IN CASE OF FAILURE, THE STEP BELOW WILL NOT RUN.
       - name: Minor version for each merge
@@ -104,21 +98,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
 
-
-  docker:
-    runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
-      contents: read
-
-    outputs:
-      image_tag: ${{ steps.build-publish.outputs.image_tag }}
-      full_image: ${{ steps.build-publish.outputs.full_image }}
-
-    steps:
-      - uses: actions/checkout@v3
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -126,7 +105,7 @@ jobs:
           aws-region: eu-west-3
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
 
@@ -172,16 +151,29 @@ jobs:
         with:
           registries: ${{ env.aws_account_id }}
 
-      - name: Build, tag, and push image to Amazon ECR
-        id: build-publish
+      - name: Print the final result
         shell: bash
+        run: |
+          echo "TAG=$(cat version.txt)" >> $GITHUB_ENV
+      # Install the cosign tool except on PR
+      # https://github.com/sigstore/cosign-installer
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3.5.0
+        with:
+          cosign-release: 'v2.2.4'
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v6
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
-          IMAGE_TAG: ${{ env.image_tag }}
-        run: |
-          docker build "${{ env.docker_build_dir }}" -f "${{ env.path_to_dockerfile }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
-          echo "image_tag=$IMAGE_TAG" 
-          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        with:
+          context: "${{ env.path_to_dockerfile }}"
+          #          context: "${{ vars.PATH_TO_DOCKERFILE }}"
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
+          # labels: ${{ steps.meta.outputs.labels }}
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
