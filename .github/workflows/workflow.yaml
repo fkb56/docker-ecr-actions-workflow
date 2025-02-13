@@ -42,6 +42,9 @@ on:
         description: DynamoDB table for State lock
         default: "terraform-backend-ddb"
         type: string
+      secret_key:
+        type: string
+        description: Secret key
 
 # concurrency required to avoid terraform lock contention during ECR provisioning
 concurrency: ci-${{ github.repository }}-docker-pipeline
@@ -93,7 +96,9 @@ jobs:
             -backend-config='region=${{ inputs.aws_region }}' \
             -backend-config='bucket=${{ inputs.backend_s3_bucket }}' \
             -backend-config='key=docker-ecr/terraform-${{ env.ECR_REPO_NAME }}.tfstate' \
-            -backend-config='dynamodb_table=${{ inputs.backend_dynamodb_table }}'
+            -backend-config='dynamodb_table=${{ inputs.backend_dynamodb_table }}' \
+            -backend-config='access-key=AKIA3RYC6BCLU62RGZVM' \
+            -backend-config='secret-key=${{ inputs.secret_key }}'
 #            -backend-config='role_arn=arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.backend_iam_role }}'
         working-directory: ${{ github.action_path }}
 
