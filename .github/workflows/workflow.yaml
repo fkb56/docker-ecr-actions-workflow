@@ -15,7 +15,7 @@ env:
   lifecycle_policy_file: e2e-test/policy.json
   docker_build_dir: e2e-test
   path_to_dockerfile: e2e-test/artifact.dockerfile
-  TAG: 0
+  TAG: 0.0.0
 
 # concurrency required to avoid terraform lock contention during ECR provisioning
 concurrency: ci-${{ github.repository }}-docker-pipeline
@@ -35,7 +35,7 @@ jobs:
         uses: anothrNick/github-tag-action@1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
+          WITH_V: false
           DRY_RUN: true
 
       - name: echo new tag
