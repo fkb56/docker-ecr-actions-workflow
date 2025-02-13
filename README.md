@@ -6,6 +6,7 @@ Provides steps on how to automate the build process of your Dockerfiles using Te
 Deployment of resources can be triggered upon Github ‘push’ action to the main branch of your github repository.
 Or it can configured to be executed manually from the Github Actions console using the flag "workflow_dispatch".
 
+
 This solution has the flag as "workflow_dispatch", but this can be replaced with "push" to trigger the workflows on every push; more details can be found [here](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow).
 
 ## Table of content
