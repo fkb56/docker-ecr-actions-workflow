@@ -1,53 +1,63 @@
 name: Docker image build and publish
 on:
-  workflow_dispatch:
-    inputs:
-      path_to_dockerfile:
-        description: Path to the dockerfile (default = 'Dockerfile')
-        default: "e2e-test/artifact.dockerfile"
-        type: string
-      docker_build_dir:
-        description: Docker build directory (default = '.')
-        default: "e2e-test"
-        type: string
-      image_tag:
-        description: Tag to apply to images.
-        type: string
-        default: snapshot-artifact
-      lifecycle_policy_file:
-        description: Path to the lifecycle policy JSON file (default = 'policy.json')
-        default: "e2e-test/policy.json"
-        type: string
-      backend_s3_bucket:
-        description: Name of the S3bucket for Terraform backend
-        default: "myterraform56"
-        type: string
+  push:
+#  workflow_dispatch:
+#    inputs:
+#      path_to_dockerfile:
+#        description: Path to the dockerfile (default = 'Dockerfile')
+#        default: "e2e-test/artifact.dockerfile"
+#        type: string
+#      docker_build_dir:
+#        description: Docker build directory (default = '.')
+#        default: "e2e-test"
+#        type: string
+#      image_tag:
+#        description: Tag to apply to images.
+#        type: string
+#        default: snapshot-artifact
+#      lifecycle_policy_file:
+#        description: Path to the lifecycle policy JSON file (default = 'policy.json')
+#        default: "e2e-test/policy.json"
+#        type: string
+#      backend_s3_bucket:
+#        description: Name of the S3bucket for Terraform backend
+#        default: "myterraform56"
+#        type: string
 #      backend_iam_role:
 #        description: Name of the Terraform backend assumable IAM Role
 #        default: "Terraform"
 #        type: string
-      github_iam_role:
-        description: Name of the IAM Role for adding access to ECR repo
-        default: "GithubAction"
-        type: string
-      aws_account_id:
-        description: AWS Account ID
-        default: "794038241431"
-        type: string
+#      github_iam_role:
+#        description: Name of the IAM Role for adding access to ECR repo
+#        default: "GithubAction"
+#        type: string
+#      aws_account_id:
+#        description: AWS Account ID
+#        default: "794038241431"
+#        type: string
 #      aws_region:
 #        description: Target AWS Region
 #        default: "eu-west-3"
 #        type: string
-      backend_dynamodb_table:
-        description: DynamoDB table for State lock
-        default: "terraform-backend-ddb"
-        type: string
+#      backend_dynamodb_table:
+#        description: DynamoDB table for State lock
+#        default: "terraform-backend-ddb"
+#        type: string
 #      secret_key:
 #        type: string
 #        description: Secret key
 
 env:
   aws_region: eu-west-3
+  backend_dynamodb_table: terraform-backend-ddb
+  aws_account_id: 794038241431
+  backend_s3_bucket: myterraform56
+  github_iam_role: GithubAction
+  backend_iam_role: Terraform2
+  image_tag: snapshot-artifact
+  lifecycle_policy_file: e2e-test/policy.json
+  docker_build_dir: e2e-test
+  path_to_dockerfile: e2e-test/artifact.dockerfile
 
 # concurrency required to avoid terraform lock contention during ECR provisioning
 concurrency: ci-${{ github.repository }}-docker-pipeline
@@ -97,12 +107,12 @@ jobs:
             -backend-config='skip_region_validation=true' \
             -backend-config='skip_credentials_validation=true' \
             -backend-config='region=${{ env.aws_region }}' \
-            -backend-config='bucket=${{ inputs.backend_s3_bucket }}' \
+            -backend-config='bucket=${{ env.backend_s3_bucket }}' \
             -backend-config='key=docker-ecr/terraform-${{ env.ECR_REPO_NAME }}.tfstate' \
-            -backend-config='dynamodb_table=${{ inputs.backend_dynamodb_table }}' \
+            -backend-config='dynamodb_table=${{ env.backend_dynamodb_table }}' \
 #            -backend-config='access-key=AKIA3RYC6BCLU62RGZVM' \
-#            -backend-config='secret-key=${{ inputs.secret_key }}'
-#            -backend-config='role_arn=arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.backend_iam_role }}'
+#            -backend-config='secret-key=${{ env.secret_key }}'
+#            -backend-config='role_arn=arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.backend_iam_role }}'
         working-directory: ${{ github.action_path }}
 
       - name: Create ECR repo [TF apply]
@@ -111,9 +121,9 @@ jobs:
           set -eux
           terraform apply \
             -var 'repository_name=${{ env.ECR_REPO_NAME }}' \
-            -var 'lifecycle_policy=${{ inputs.lifecycle_policy_file }}' \
-            -var 'iam_role=arn:aws:iam::${{ inputs.aws_account_id }}:role/${{ inputs.github_iam_role }}' \
-            -var 'aws_account_id=${{ inputs.aws_account_id }}' \
+            -var 'lifecycle_policy=${{ env.lifecycle_policy_file }}' \
+            -var 'iam_role=arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.github_iam_role }}' \
+            -var 'aws_account_id=${{ env.aws_account_id }}' \
             -auto-approve
         working-directory: ${{ github.action_path }}
 
@@ -121,7 +131,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
         with:
-          registries: ${{ inputs.aws_account_id }}
+          registries: ${{ env.aws_account_id }}
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-publish
@@ -129,9 +139,9 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
-          IMAGE_TAG: ${{ inputs.image_tag }}
+          IMAGE_TAG: ${{ env.image_tag }}
         run: |
-          docker build "${{ inputs.docker_build_dir }}" -f "${{ inputs.path_to_dockerfile }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build "${{ env.docker_build_dir }}" -f "${{ env.path_to_dockerfile }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
           echo "image_tag=$IMAGE_TAG" 
