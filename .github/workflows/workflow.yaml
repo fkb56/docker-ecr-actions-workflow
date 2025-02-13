@@ -49,7 +49,7 @@ on:
 
 env:
   aws_region: eu-west-3
-  backend_dynamodb_table: terraform-backend-bdd
+  backend_dynamodb_table: terraform-backend-ddb
   aws_account_id: 794038241431
   backend_s3_bucket: myterraform56
   github_iam_role: GithubAction
