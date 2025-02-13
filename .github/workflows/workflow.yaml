@@ -133,7 +133,7 @@ jobs:
           ECR_REPOSITORY: ${{ vars.ECR_REPO_NAME }}
           IMAGE_TAG: ${{ env.TAG }}
         run: |
-          docker build "${{ vars.DOCKER_BUILD_DIR }}" -f "${{ vars.PATH_TO_DOCKERFILE }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build "${{ env.docker_build_dir }}" -f "${{ env.path_to_dockerfile }}" -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
           echo "image_tag=$IMAGE_TAG"
