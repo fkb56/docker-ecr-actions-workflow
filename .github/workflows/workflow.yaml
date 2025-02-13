@@ -16,7 +16,6 @@ env:
   docker_build_dir: e2e-test/
   path_to_dockerfile: e2e-test/Dockerfile
   TAG: 0.0
-  MINOR_STRING_TOKEN: 0.0
   DEFAULT_BUMP: patch
 
 # concurrency required to avoid terraform lock contention during ECR provisioning
