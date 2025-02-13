@@ -89,11 +89,11 @@ jobs:
         run: |
           echo "${{steps.taggerDryRun.outputs.new_tag}}" > version.txt
 
-      - name: Upload version result
-        uses: actions/upload-artifact@v4.6.0
-        with:
-          name: version
-          path: version.txt
+#      - name: Upload version result
+#        uses: actions/upload-artifact@v4.6.0
+#        with:
+#          name: version
+#          path: version.txt
 
       # DO MY BUILD HERE
       # IN CASE OF FAILURE, THE STEP BELOW WILL NOT RUN.
