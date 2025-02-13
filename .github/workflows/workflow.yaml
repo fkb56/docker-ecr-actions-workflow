@@ -3,7 +3,7 @@ on:
   push:
     branches: [ "main" ]
       # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    tags: [ '*.*' ]
 env:
   aws_region: eu-west-3
   backend_dynamodb_table: terraform-backend-ddb
@@ -15,7 +15,7 @@ env:
   lifecycle_policy_file: e2e-test/policy.json
   docker_build_dir: e2e-test
   path_to_dockerfile: e2e-test/artifact.dockerfile
-  TAG: 0.0.0
+  TAG: 0.0
 
 # concurrency required to avoid terraform lock contention during ECR provisioning
 concurrency: ci-${{ github.repository }}-docker-pipeline
@@ -132,7 +132,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
         with:
-          context: "${{ env.path_to_dockerfile }}"
+          context: "${{ env.docker_build_dir }}"
+#          context: "${{ env.path_to_dockerfile }}"
           #          context: "${{ vars.PATH_TO_DOCKERFILE }}"
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.TAG }}
