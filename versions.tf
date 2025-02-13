@@ -13,7 +13,7 @@ terraform {
     key    = "docker-ecr/terraform-fkb56_docker-ecr-actions-workflow.tfstate"
     region = "eu-west-3"
     assume_role = {
-      role_arn = "arn:aws:iam::794038241431:role/Terraform2"
+      role_arn = "arn:aws:s3:::myterraform56"
     }
   }
 }
