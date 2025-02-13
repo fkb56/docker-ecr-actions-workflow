@@ -22,10 +22,10 @@ on:
         description: Name of the S3bucket for Terraform backend
         default: "myterraform56"
         type: string
-      backend_iam_role:
-        description: Name of the Terraform backend assumable IAM Role
-        default: "Terraform"
-        type: string
+#      backend_iam_role:
+#        description: Name of the Terraform backend assumable IAM Role
+#        default: "Terraform"
+#        type: string
       github_iam_role:
         description: Name of the IAM Role for adding access to ECR repo
         default: "GithubAction"
