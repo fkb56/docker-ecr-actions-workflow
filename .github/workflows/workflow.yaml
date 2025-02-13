@@ -54,7 +54,7 @@ env:
   backend_s3_bucket: myterraform56
   github_iam_role: GithubAction
   backend_iam_role: Terraform2
-  image_tag: snapshot-artifact
+  image_tag: snapshot
   lifecycle_policy_file: e2e-test/policy.json
   docker_build_dir: e2e-test
   path_to_dockerfile: e2e-test/artifact.dockerfile

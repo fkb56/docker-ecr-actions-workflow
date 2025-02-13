@@ -2,12 +2,12 @@
   "rules": [
     {
       "rulePriority": 1,
-      "description": "Keep last 1 images",
+      "description": "Keep last 6 images",
       "selection": {
         "tagStatus": "tagged",
-        "tagPrefixList": [ "snapshot" ],
+        "tagPrefixList": [ "snapshot", "snapshot-artifact" ],
         "countType": "imageCountMoreThan",
-        "countNumber": 1
+        "countNumber": 6
       },
       "action": {
         "type": "expire"
