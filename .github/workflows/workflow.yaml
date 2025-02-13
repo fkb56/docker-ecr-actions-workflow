@@ -4,52 +4,6 @@ on:
     branches: [ "main" ]
       # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
-#  workflow_dispatch:
-#    inputs:
-#      path_to_dockerfile:
-#        description: Path to the dockerfile (default = 'Dockerfile')
-#        default: "e2e-test/artifact.dockerfile"
-#        type: string
-#      docker_build_dir:
-#        description: Docker build directory (default = '.')
-#        default: "e2e-test"
-#        type: string
-#      image_tag:
-#        description: Tag to apply to images.
-#        type: string
-#        default: snapshot-artifact
-#      lifecycle_policy_file:
-#        description: Path to the lifecycle policy JSON file (default = 'policy.json')
-#        default: "e2e-test/policy.json"
-#        type: string
-#      backend_s3_bucket:
-#        description: Name of the S3bucket for Terraform backend
-#        default: "myterraform56"
-#        type: string
-#      backend_iam_role:
-#        description: Name of the Terraform backend assumable IAM Role
-#        default: "Terraform"
-#        type: string
-#      github_iam_role:
-#        description: Name of the IAM Role for adding access to ECR repo
-#        default: "GithubAction"
-#        type: string
-#      aws_account_id:
-#        description: AWS Account ID
-#        default: "794038241431"
-#        type: string
-#      aws_region:
-#        description: Target AWS Region
-#        default: "eu-west-3"
-#        type: string
-#      backend_dynamodb_table:
-#        description: DynamoDB table for State lock
-#        default: "terraform-backend-ddb"
-#        type: string
-#      secret_key:
-#        type: string
-#        description: Secret key
-
 env:
   aws_region: eu-west-3
   backend_dynamodb_table: terraform-backend-ddb
@@ -76,13 +30,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Minor version for each merge
-        id: taggerDryRun
-        uses: anothrNick/github-tag-action@1.36.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
-          DRY_RUN: true
+#      - name: Minor version for each merge
+#        id: taggerDryRun
+#        uses: anothrNick/github-tag-action@1.36.0
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          WITH_V: true
+#          DRY_RUN: true
 
       - name: echo new tag
         run: |
