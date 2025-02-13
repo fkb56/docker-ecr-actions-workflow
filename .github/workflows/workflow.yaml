@@ -124,7 +124,7 @@ jobs:
             -var 'lifecycle_policy=${{ env.lifecycle_policy_file }}' \
             -var 'iam_role=arn:aws:iam::${{ env.aws_account_id }}:role/${{ env.backend_iam_role }}' \
             -var 'aws_account_id=${{ env.aws_account_id }}' \
-            -lock=false \
+#            -lock=false \
             -auto-approve
         working-directory: ${{ github.action_path }}
 
