@@ -66,6 +66,10 @@ concurrency: ci-${{ github.repository }}-docker-pipeline
 jobs:
   Patch:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
