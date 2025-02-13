@@ -30,13 +30,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-#      - name: Minor version for each merge
-#        id: taggerDryRun
-#        uses: anothrNick/github-tag-action@1.36.0
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          WITH_V: true
-#          DRY_RUN: true
+      - name: Minor version for each merge
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DRY_RUN: true
 
       - name: echo new tag
         run: |
@@ -54,7 +54,7 @@ jobs:
       # IN CASE OF FAILURE, THE STEP BELOW WILL NOT RUN.
       - name: Minor version for each merge
         id: taggerFinal
-        uses: anothrNick/github-tag-action@1.36.0
+        uses: anothrNick/github-tag-action@1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: false
