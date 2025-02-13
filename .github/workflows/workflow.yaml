@@ -58,11 +58,53 @@ env:
   lifecycle_policy_file: e2e-test/policy.json
   docker_build_dir: e2e-test
   path_to_dockerfile: e2e-test/artifact.dockerfile
+  TAG: 0
 
 # concurrency required to avoid terraform lock contention during ECR provisioning
 concurrency: ci-${{ github.repository }}-docker-pipeline
 
 jobs:
+  Patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Minor version for each merge
+        id: taggerDryRun
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DRY_RUN: true
+
+      - name: echo new tag
+        run: |
+          echo ${{steps.taggerDryRun.outputs.new_tag}} > ${{ env.TAG }}
+
+      - name: echo tag
+        run: |
+          echo "The current tag is: ${{env.TAG}}"
+
+      - shell: bash
+        run: |
+          echo "${{steps.taggerDryRun.outputs.new_tag}}" > version.txt
+
+      - name: Upload version result
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: version
+          path: version.txt
+
+      # DO MY BUILD HERE
+      # IN CASE OF FAILURE, THE STEP BELOW WILL NOT RUN.
+      - name: Minor version for each merge
+        id: taggerFinal
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+
+
   docker:
     runs-on: ubuntu-latest
 
