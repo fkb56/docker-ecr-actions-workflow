@@ -24,7 +24,7 @@ on:
         type: string
       backend_iam_role:
         description: Name of the Terraform backend assumable IAM Role
-        default: "Terraform2"
+        default: "Terraform"
         type: string
       github_iam_role:
         description: Name of the IAM Role for adding access to ECR repo
